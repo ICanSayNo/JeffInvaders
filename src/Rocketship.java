@@ -3,26 +3,17 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 
 public class Rocketship extends GameObject {
-int x;
-int y;
-int width;
-int height;
 int speed;
 	Rocketship(int x, int y, int width, int height){
-	this.x=x;
-	this.y=y;
-	this.width=width;
-	this.height=height;
+	super(x, y, width, height);
 	speed = 20;
 	}
 void update() {
-		
+	super.update();
 	}
 
 	void draw(Graphics g) {
-		g.setColor(Color.BLUE);
-		g.fillRect(x, y, width, height);
-
+		g.drawImage(GamePanel.rocketImg, x, y, width, height, null);
 	}
 }
 

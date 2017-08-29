@@ -5,7 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -18,12 +21,25 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	Font titleFont;
 	Rocketship r = new Rocketship(250,700,50,50);
 	ObjectManager o = new ObjectManager();
+	public static BufferedImage alienImg;
+	public static BufferedImage rocketImg;
+	public static BufferedImage bulletImg;
+
 	
 	
 public GamePanel() {
 	timer = new Timer(1000/60, this);
 	titleFont = new Font("Comic Sans MS", Font.PLAIN, 48);
 	o.addObject(r);
+	try {
+		alienImg = ImageIO.read(this.getClass().getResourceAsStream("alien.png"));
+		rocketImg = ImageIO.read(this.getClass().getResourceAsStream("rocket.png"));
+		bulletImg = ImageIO.read(this.getClass().getResourceAsStream("bullet.png"));
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+
 }
 
 void startGame() {
@@ -44,6 +60,15 @@ void updateMenuState(){
 }
 void updateGameState(){
 	o.update();
+	o.manageEnemies();
+	o.manageStars();
+	if(!r.isAlive){
+		currentState=2;
+		o.reset();
+		r=new Rocketship(250,700,50,50);
+		o.addObject(r);
+	}
+	
 }
 void updateEndState() {
 	
@@ -60,6 +85,7 @@ void drawGameState(Graphics g){
 	g.setColor(Color.BLACK);
 	g.fillRect(0, 0, LeagueInvaders.frameWidth, LeagueInvaders.frameHeight);
 	o.draw(g);
+	o.checkCollision();
 }
 void drawEndState(Graphics g) {
 	g.setColor(Color.RED);
@@ -70,6 +96,9 @@ void drawEndState(Graphics g) {
 	g.setColor(Color.BLACK);
 	g.setFont(titleFont); 
 	g.drawString("UR IS DED!", 70, 500);
+	g.setColor(Color.BLACK);
+	g.setFont(titleFont); 
+	g.drawString("SKOR: "+o.getScore(), 70, 600);
 }
 
 	@Override
@@ -94,6 +123,9 @@ void drawEndState(Graphics g) {
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
+		if(e.getKeyCode() == (KeyEvent.VK_SPACE)) {
+			o.addObject(new Projectile(r.x+20, r.y, 10, 10));
+		}
 		if(e.getKeyCode() == (KeyEvent.VK_ENTER)) {
 			if(currentState == MENU_STATE){
 				currentState=GAME_STATE;
@@ -104,7 +136,9 @@ void drawEndState(Graphics g) {
 			}
 			System.out.println(currentState);
 		}
-		else if(e.getKeyCode() == (KeyEvent.VK_LEFT)) {
+
+		
+		 if(e.getKeyCode() == (KeyEvent.VK_LEFT)) {
 			if(r.x>0) {
 				r.x-=r.speed;
 			}
@@ -113,9 +147,6 @@ void drawEndState(Graphics g) {
 			if(r.x<450) {
 				r.x+=r.speed;
 			}
-		}
-		if(e.getKeyCode() == (KeyEvent.VK_SPACE)) {
-			o.addObject(new Projectile(r.x+20, r.y, 10, 10));
 		}
 	}
 	@Override
